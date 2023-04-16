@@ -1,0 +1,895 @@
+<html>
+  <head>
+
+    <img src="paws(1).png" alt="Paws" style="width:25%; max-width:800px; display:block; margin:auto;">
+    <title>Paws + +</title>
+    <style>
+        body {
+            background-color: rgb(97, 87, 179);
+        }
+    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  </head>
+
+  <body>
+
+    <h1>Select Your Major</h1>
+    <div id="boxes">
+        <div py-for="box in boxes" class="box" py-style="background-color: {{ box.color }};">
+            <button py-click="csmajor()">Computer Science</button>
+        </div>
+        <div py-for="box in boxes" class="box" py-style="background-color: {{ box.color }};">
+            <button py-click="phymajor()">Physics</button>
+        </div>
+        <div py-for="box in boxes" class="box" py-style="background-color: {{ box.color }};">
+            <button py-click="phymajor()">Chemistry</button>
+        </div>
+        <div py-for="box in boxes" class="box" py-style="background-color: {{ box.color }};">
+            <button py-click="csmajor()">Biology</button>
+        </div>
+        <div py-for="box in boxes" class="box" py-style="background-color: {{ box.color }};">
+            <button py-click="csmajor()">Mathematics</button>
+        </div>
+    </div>
+
+    <py-config>
+      packages = ["matplotlib", "pandas", "flask"]
+    </py-config>
+
+    <py-script>
+    import re
+    import pandas as pd
+    from pyodide.http import open_url
+
+
+
+
+    def csmajor():
+
+        url = (
+        "https://raw.githubusercontent.com/JoePetrecca/hack/main/elipse.csv"
+        )
+        major = 'cs'
+
+        temp = ['CSC 270',
+        'CSC 220',
+        'CSC 325',
+        'MAT 127',
+        'MAT 128',
+        'CSC 230',
+        'CSC 335',
+        'FRE 102',
+        'MAT 205',
+        'PHY 201',
+        'SOC 101',
+        'STA 215',
+        'CSC 230',
+        'WGS 225',
+        'CSC 275',
+        'CSC 315',
+        'CSC 345',
+        'CSC 415',
+        'CSC 435',
+        'PHL 120',
+        'PHY 162',
+        'CSC 199',
+        'CSC 099',
+        'CSC 498',
+        'STA 305']
+        temp1 =['CLS 250',
+        'CSC 215',
+        'FSP 164',
+        'HIS 165',
+        'MAT 120',
+        'MAT 127',
+        'MAT 205',
+        'MAT 229',
+        'PHY 162',
+        'PHY 203',
+        'PHY 204',
+        'PHY 299',
+        'PHY 306',
+        'PHY 311',
+        'PHY 321',
+        'PHY 356',
+        'PHY 393',
+        'PHY 413',
+        'PHY 431',
+        'SOC 101',
+        'SPA 102',
+        'SPA 103',
+        'WGS 220',
+        'CSC 275',
+        'MAT 200',
+        'MAT 326',
+        'PHL 270',
+        'PHY 361',
+        'PHY 393',
+        'PHY 401',
+        'PHY 421',
+        'PHY 426',
+        'PHY 466',
+            'PHY 099',
+            'MAT 128'
+            ]
+        newtemp = []
+        for x in temp:
+            newtemp.append(x.lower())
+            
+        newtemp1 = []
+        for x in temp1:
+            newtemp1.append(x.lower())
+            
+
+        if major == 'cs':
+            reqs = pd.read_csv(open_url(url))
+            reqs = reqs.applymap(lambda s: s.lower() if isinstance(s, str) else s)
+            in_major = reqs.dropna(subset=['In-major'])['In-major'].tolist()
+            #print(in_major)
+            req_options = reqs.dropna(subset=['req-options'])['req-options'].tolist()
+            #print(req_options)
+            options = reqs.dropna(subset=['Options'])['Options'].tolist()
+            #print(options)
+            correlates = reqs.dropna(subset=['Correlates'])['Correlates'].tolist()
+            #print(correlates)
+            capstone = reqs.dropna(subset=['Science'])['Science'].tolist()
+            #print(capstone)
+            capstone = reqs.dropna(subset=['Capstone'])['Capstone'].tolist()
+            #print(capstone,'\n')
+            
+            studset = set(newtemp)
+            in_major = set(in_major)                 #LEFT IN MAJOR
+            left_in_major = in_major - studset
+            print("In Major Requirements", left_in_major)
+            
+            req_options = set(req_options)           #LEFT IN REQ OPTIONS
+            left_req_options = req_options - studset
+            #print(left_req_options)
+
+            lils = []
+            bigs = []
+            lils = set(lils)
+            bigs = set(bigs)
+            if ((('csc 315' not in left_req_options) or ('csc 360' not in left_req_options))):
+                lils = ['csc 315','csc 360']
+                lils = set(lils)
+            left_req_options = left_req_options - lils
+
+            
+            if ((('csc 435' not in left_req_options) or ('csc 445' not in left_req_options))):
+                bigs = ['csc 445','csc 435']
+                bigs = set(bigs)
+            left_req_options = left_req_options - bigs
+            
+            if(len(left_req_options) == 0):
+                print("Required Options: Complete")                # REQUIRED OPTIONS EVALUATION
+            else:
+                if(('csc 315' in left_req_options) or ('csc 360' in left_req_options)):
+                    print("Required Options: not complete need CSC 315 or CSC 360")
+                else:
+                    print("Required Options: not complete need CSC 435 or CSC 345")
+            
+            
+            capstone = set(capstone)           #LEFT IN Capstone
+            left_capstone = capstone - studset
+            if (('csc 399' not in left_capstone) or (('csc 498' not in left_capstone) and ('csc 415' in studset))):
+                print("Capstone: Complete")
+            elif (('csc 498' not in left_capstone) or ('csc 499' not in left_capstone)):
+                print("Capstone requirement met but you need CSC 415 or CSC 399")
+
+                
+                
+            correlates = set(correlates)                       # LEFT in correlates
+            left_correlates = correlates - studset
+            
+            
+            
+            if(('mat 205' not in left_correlates) or ("mat 128" not in left_correlates)):
+                cores = ['mat 128','mat 205']
+                left_correlates = left_correlates - set(cores)
+            if(len(left_correlates) == 0):
+                print("Correlates: Complete")
+            else:
+                print("Correlates: Not Complete\n Need:", left_correlates)
+                
+                
+            options = set(options)
+            left_options = options - studset
+            
+            counts = 0
+            for x in studset:
+                if (x == 'csc 315'):
+                    studset.remove('csc 315')
+                    break
+                if (x == 'csc 360'):
+                    studset.remove('csc 360')
+                    break
+            for x in studset:
+                if (x == 'csc 435'):
+                    studset.remove('csc 435')
+                    break
+                if (x == 'csc 445'):
+                    studset.remove('csc 445')
+                    break
+                
+
+            optionals = []
+            for x in studset:
+                if(x in options):
+                    optionals.append(x)
+            if(len(optionals) < 3):
+                print("Options: Not complete")
+                print(f"Need: {3-len(optionals)} more other than", optionals)
+
+            else:     
+                print("Options: completed")
+
+        elif major == 'physics':
+            url = (
+                "https://raw.githubusercontent.com/JoePetrecca/hack/main/elipseph.csv"
+            )
+
+
+
+
+            reqs = pd.read_csv(open_url(url))
+            reqs = reqs.applymap(lambda s: s.lower() if isinstance(s, str) else s)
+            in_major = reqs.dropna(subset=['In-major'])['In-major'].tolist()
+            #print(in_major)
+            req_options = reqs.dropna(subset=['req-options'])['req-options'].tolist()
+            #print(req_options)
+            options = reqs.dropna(subset=['Options'])['Options'].tolist()
+            #print(options)
+            correlates = reqs.dropna(subset=['Correlates'])['Correlates'].tolist()
+            #print(correlates)
+            capstone = reqs.dropna(subset=['Capstone'])['Capstone'].tolist()
+            #print(capstone,'\n')
+            
+            studset = set(newtemp1)
+            in_major = set(in_major)
+            left_in_major = in_major - studset
+            if(len(left_in_major) == 0):
+                print("In Major Requirements: Complete")
+            else:
+                print("In Major Requirements: Not Complete")
+                print("Needed:", left_in_major)
+            
+            
+            req_options = set(req_options)           #LEFT IN REQ OPTIONS
+            left_req_options = req_options - studset
+        
+            if(('phy 306' not in left_req_options) or (('mat 229' not in left_req_options) and ('mat 205' not in left_req_options))):
+                print("Required Options: Complete")                #MUST take phy 306 or mat 229 and mat 205
+            else:
+                if(('mat 229' in left_req_options) and ('mat 205' in left_req_options)):
+                    print("Required Options: not complete need MAT 229 and MAT 205, or PHY 306")
+                elif('mat 205' in left_req_options):
+                    print("Required Options: not complete need MAT 229 or PHY 306")
+                else:
+                    print("Required Options: not complete need MAT 205 or PHY 306")
+        
+                    
+        
+        
+            
+            capstone = set(capstone)           #LEFT IN Capstone
+            left_capstone = capstone - studset
+            if (('phy 451' not in left_capstone)):
+                print("Capstone: Complete")
+            else:
+                print("Capstone: Not Complete need PHY 451")
+        
+            
+            correlates = set(correlates)                #LEFT in Correlates
+            left_correlates = correlates - studset
+            if(len(left_correlates) == 0):
+                print("Correlates: Complete")
+            else:
+                print("Correlates: ",left_correlates)
+            
+            options = set(options)
+            left_options = options - studset
+            
+            counts = 0
+            for x in studset:
+                if (x == 'phy 220'):
+                    studset.remove('phy 220')
+                    print("Lab option: Complete with PHY 220")
+                    break
+                if (x == 'phy 311'):
+                    studset.remove('phy 311')
+                    print("Lab option: Complete with PHY 311")
+                    break
+                if (x == 'phy 345'):
+                    studset.remove('phy 345')
+                    print("Lab option: Complete with PHY 345")
+                    break
+                if (x == 'phy 411'):
+                    studset.remove('phy 411')
+                    print("Lab option: Complete with PHY 411")
+                    break
+                counts += 1
+                if(counts == len(studset)):
+                    print("Lab option: Not Complete")
+            optionals = []
+            for x in studset:
+                if(x in options):
+                    optionals.append(x)
+            if(len(optionals) < 3):
+                print("Options: Not complete")
+                print(f"Need: {3-len(optionals)} more other than", optionals)
+        
+            else:     
+                print("Options: completed")
+
+        url = (
+            "https://raw.githubusercontent.com/JoePetrecca/hack/main/elipselib.csv"
+        )
+
+
+        #LIBERALS
+
+        #GENDER
+        libs = reqs = pd.read_csv(open_url(url),usecols=[4])
+        # libs
+        # h = libs.iloc[:, 0].tolist()
+        # print(h)
+        
+        for course in studset:
+            coursen = course.upper() + ' - GENDER'
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies GENDER')
+                break
+        else:
+            print('No course satisfies GENDER.')
+        
+        
+        
+                
+        #GLOBAL
+        libs = reqs = pd.read_csv(open_url(url),usecols=[5])
+        # libs
+        # h = libs.iloc[:, 0].tolist()
+        #print(h)
+        
+        for course in studset:
+            coursen = course.upper() + ' - GLOBAL'
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies GLOBAL')
+                break
+        else:
+            print('No course satisfies GLOBAL.')
+        
+        #RACE
+        libs = reqs = pd.read_csv(open_url(url),usecols=[6])
+        # libs
+        # h = libs.iloc[:, 0].tolist()
+        #print(h)
+        
+        for course in studset:
+            coursen = course.upper() + ' - RACE'
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies RACE')
+                break
+        else:
+            print('No course satisfies RACE.')
+        
+        
+                
+        
+        #LVPA
+        libs = reqs = pd.read_csv(open_url(url),usecols=[0])
+        libs
+        #h = libs.iloc[:, 0].tolist()
+        #print(h)
+        for course in studset:
+            coursen = course.upper() + ' - LVPA '
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies LVPA')
+                studset.remove(course)
+                break
+        else:
+            print('No course satisfies LVPA.')
+        
+            
+        #WVWK
+        libs = reqs = pd.read_csv(open_url(url),usecols=[1])
+        libs
+        #h = libs.iloc[:, 0].tolist()
+        #print(h)
+        for course in studset:
+            coursen = course.upper() + ' - WVWK '
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies WVWK')
+                studset.remove(course)
+                break
+        else:
+            print('No course satisfies WVWK.')
+        
+                
+        #BSCP
+        libs = reqs = pd.read_csv(open_url(url),usecols=[2])
+        libs
+        #h = libs.iloc[:, 0].tolist()
+        #print(h)
+        for course in studset:
+            coursen = course.upper() + ' - BSCP '
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies BSCP')
+                studset.remove(course)
+                break
+        else:
+            print('No course satisfies BSCP.')
+        
+                
+        #SCHP
+        libs = reqs = pd.read_csv(open_url(url),usecols=[3])
+        libs
+        #h = libs.iloc[:, 0].tolist()
+        #print(h)
+        for course in studset:
+            coursen = course.upper() + ' - SCHP '
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies SCHP')
+                studset.remove(course)
+                break
+        else:
+            print('No course satisfies SCHP.')
+        
+        
+        
+                
+        #World Languages
+        Spanish = ['spa 101','spa 102','spa 103']
+        French = ['fre 101','fre 102','fre 103']
+        
+        for x in studset:
+            if(x =='spa 103'):
+                print('Langauge: Complete')
+                break
+            elif(x =='spa 102'):
+                print('Langauge: 1 more course needed')
+                break
+            elif(x =='spa 101'):
+                print('Langauge: 2 more course needed')
+                break
+            elif(x =='fre 103'):
+                #print('Langauge: Complete')
+                break
+            elif(x =='fre 102'):
+                print('Langauge: 1 more course needed')
+                break
+            elif(x =='fre 101'):
+                print('Langauge: 2 more course needed')
+                break
+                
+     
+    def phymajor():
+        url = (
+        "https://raw.githubusercontent.com/JoePetrecca/hack/main/elipse.csv"
+        )
+        major = 'physics'
+
+        temp = ['CSC 270',
+        'CSC 220',
+        'CSC 325',
+        'MAT 127',
+        'MAT 128',
+        'CSC 230',
+        'CSC 335',
+        'FRE 102',
+        'MAT 205',
+        'PHY 201',
+        'SOC 101',
+        'STA 215',
+        'CSC 230',
+        'WGS 225',
+        'CSC 275',
+        'CSC 315',
+        'CSC 345',
+        'CSC 415',
+        'CSC 435',
+        'PHL 120',
+        'PHY 162',
+        'CSC 199',
+        'CSC 099',
+        'CSC 498',
+        'STA 305']
+        temp1 =['CLS 250',
+        'CSC 215',
+        'FSP 164',
+        'HIS 165',
+        'MAT 120',
+        'MAT 127',
+        'MAT 205',
+        'MAT 229',
+        'PHY 162',
+        'PHY 203',
+        'PHY 204',
+        'PHY 299',
+        'PHY 306',
+        'PHY 311',
+        'PHY 321',
+        'PHY 356',
+        'PHY 393',
+        'PHY 413',
+        'PHY 431',
+        'SOC 101',
+        'SPA 102',
+        'SPA 103',
+        'WGS 220',
+        'CSC 275',
+        'MAT 200',
+        'MAT 326',
+        'PHL 270',
+        'PHY 361',
+        'PHY 393',
+        'PHY 401',
+        'PHY 421',
+        'PHY 426',
+        'PHY 466',
+            'PHY 099',
+            'MAT 128'
+            ]
+        newtemp = []
+        for x in temp:
+            newtemp.append(x.lower())
+            
+        newtemp1 = []
+        for x in temp1:
+            newtemp1.append(x.lower())
+            
+
+        if major == 'cs':
+            reqs = pd.read_csv(open_url(url))
+            reqs = reqs.applymap(lambda s: s.lower() if isinstance(s, str) else s)
+            in_major = reqs.dropna(subset=['In-major'])['In-major'].tolist()
+            #print(in_major)
+            req_options = reqs.dropna(subset=['req-options'])['req-options'].tolist()
+            #print(req_options)
+            options = reqs.dropna(subset=['Options'])['Options'].tolist()
+            #print(options)
+            correlates = reqs.dropna(subset=['Correlates'])['Correlates'].tolist()
+            #print(correlates)
+            capstone = reqs.dropna(subset=['Science'])['Science'].tolist()
+            #print(capstone)
+            capstone = reqs.dropna(subset=['Capstone'])['Capstone'].tolist()
+            #print(capstone,'\n')
+            
+            studset = set(newtemp)
+            in_major = set(in_major)                 #LEFT IN MAJOR
+            left_in_major = in_major - studset
+            print("In Major Requirements", left_in_major)
+            
+            req_options = set(req_options)           #LEFT IN REQ OPTIONS
+            left_req_options = req_options - studset
+            #print(left_req_options)
+
+            lils = []
+            bigs = []
+            lils = set(lils)
+            bigs = set(bigs)
+            if ((('csc 315' not in left_req_options) or ('csc 360' not in left_req_options))):
+                lils = ['csc 315','csc 360']
+                lils = set(lils)
+            left_req_options = left_req_options - lils
+
+            
+            if ((('csc 435' not in left_req_options) or ('csc 445' not in left_req_options))):
+                bigs = ['csc 445','csc 435']
+                bigs = set(bigs)
+            left_req_options = left_req_options - bigs
+            
+            if(len(left_req_options) == 0):
+                print("Required Options: Complete")                # REQUIRED OPTIONS EVALUATION
+            else:
+                if(('csc 315' in left_req_options) or ('csc 360' in left_req_options)):
+                    print("Required Options: not complete need CSC 315 or CSC 360")
+                else:
+                    print("Required Options: not complete need CSC 435 or CSC 345")
+            
+            
+            capstone = set(capstone)           #LEFT IN Capstone
+            left_capstone = capstone - studset
+            if (('csc 399' not in left_capstone) or (('csc 498' not in left_capstone) and ('csc 415' in studset))):
+                print("Capstone: Complete")
+            elif (('csc 498' not in left_capstone) or ('csc 499' not in left_capstone)):
+                print("Capstone requirement met but you need CSC 415 or CSC 399")
+
+                
+                
+            correlates = set(correlates)                       # LEFT in correlates
+            left_correlates = correlates - studset
+            
+            
+            
+            if(('mat 205' not in left_correlates) or ("mat 128" not in left_correlates)):
+                cores = ['mat 128','mat 205']
+                left_correlates = left_correlates - set(cores)
+            if(len(left_correlates) == 0):
+                print("Correlates: Complete")
+            else:
+                print("Correlates: Not Complete\n Need:", left_correlates)
+                
+                
+            options = set(options)
+            left_options = options - studset
+            
+            counts = 0
+            for x in studset:
+                if (x == 'csc 315'):
+                    studset.remove('csc 315')
+                    break
+                if (x == 'csc 360'):
+                    studset.remove('csc 360')
+                    break
+            for x in studset:
+                if (x == 'csc 435'):
+                    studset.remove('csc 435')
+                    break
+                if (x == 'csc 445'):
+                    studset.remove('csc 445')
+                    break
+                
+
+            optionals = []
+            for x in studset:
+                if(x in options):
+                    optionals.append(x)
+            if(len(optionals) < 3):
+                print("Options: Not complete")
+                print(f"Need: {3-len(optionals)} more other than", optionals)
+
+            else:     
+                print("Options: completed")
+
+        elif major == 'physics':
+            url = (
+                "https://raw.githubusercontent.com/JoePetrecca/hack/main/elipseph.csv"
+            )
+
+
+
+
+            reqs = pd.read_csv(open_url(url))
+            reqs = reqs.applymap(lambda s: s.lower() if isinstance(s, str) else s)
+            in_major = reqs.dropna(subset=['In-major'])['In-major'].tolist()
+            #print(in_major)
+            req_options = reqs.dropna(subset=['req-options'])['req-options'].tolist()
+            #print(req_options)
+            options = reqs.dropna(subset=['Options'])['Options'].tolist()
+            #print(options)
+            correlates = reqs.dropna(subset=['Correlates'])['Correlates'].tolist()
+            #print(correlates)
+            capstone = reqs.dropna(subset=['Capstone'])['Capstone'].tolist()
+            #print(capstone,'\n')
+            
+            studset = set(newtemp1)
+            in_major = set(in_major)
+            left_in_major = in_major - studset
+            if(len(left_in_major) == 0):
+                print("In Major Requirements: Complete")
+            else:
+                print("In Major Requirements: Not Complete")
+                print("Needed:", left_in_major)
+            
+            
+            req_options = set(req_options)           #LEFT IN REQ OPTIONS
+            left_req_options = req_options - studset
+        
+            if(('phy 306' not in left_req_options) or (('mat 229' not in left_req_options) and ('mat 205' not in left_req_options))):
+                print("Required Options: Complete")                #MUST take phy 306 or mat 229 and mat 205
+            else:
+                if(('mat 229' in left_req_options) and ('mat 205' in left_req_options)):
+                    print("Required Options: not complete need MAT 229 and MAT 205, or PHY 306")
+                elif('mat 205' in left_req_options):
+                    print("Required Options: not complete need MAT 229 or PHY 306")
+                else:
+                    print("Required Options: not complete need MAT 205 or PHY 306")
+        
+                    
+        
+        
+            
+            capstone = set(capstone)           #LEFT IN Capstone
+            left_capstone = capstone - studset
+            if (('phy 451' not in left_capstone)):
+                print("Capstone: Complete")
+            else:
+                print("Capstone: Not Complete need PHY 451")
+        
+            
+            correlates = set(correlates)                #LEFT in Correlates
+            left_correlates = correlates - studset
+            if(len(left_correlates) == 0):
+                print("Correlates: Complete")
+            else:
+                print("Correlates: ",left_correlates)
+            
+            options = set(options)
+            left_options = options - studset
+            
+            counts = 0
+            for x in studset:
+                if (x == 'phy 220'):
+                    studset.remove('phy 220')
+                    print("Lab option: Complete with PHY 220")
+                    break
+                if (x == 'phy 311'):
+                    studset.remove('phy 311')
+                    print("Lab option: Complete with PHY 311")
+                    break
+                if (x == 'phy 345'):
+                    studset.remove('phy 345')
+                    print("Lab option: Complete with PHY 345")
+                    break
+                if (x == 'phy 411'):
+                    studset.remove('phy 411')
+                    print("Lab option: Complete with PHY 411")
+                    break
+                counts += 1
+                if(counts == len(studset)):
+                    print("Lab option: Not Complete")
+            optionals = []
+            for x in studset:
+                if(x in options):
+                    optionals.append(x)
+            if(len(optionals) < 3):
+                print("Options: Not complete")
+                print(f"Need: {3-len(optionals)} more other than", optionals)
+        
+            else:     
+                print("Options: completed")
+
+        url = (
+            "https://raw.githubusercontent.com/JoePetrecca/hack/main/elipselib.csv"
+        )
+
+
+        #LIBERALS
+
+        #GENDER
+        libs = reqs = pd.read_csv(open_url(url),usecols=[4])
+        # libs
+        # h = libs.iloc[:, 0].tolist()
+        # print(h)
+        
+        for course in studset:
+            coursen = course.upper() + ' - GENDER'
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies GENDER')
+                break
+        else:
+            print('No course satisfies GENDER.')
+        
+        
+        
+                
+        #GLOBAL
+        libs = reqs = pd.read_csv(open_url(url),usecols=[5])
+        # libs
+        # h = libs.iloc[:, 0].tolist()
+        #print(h)
+        
+        for course in studset:
+            coursen = course.upper() + ' - GLOBAL'
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies GLOBAL')
+                break
+        else:
+            print('No course satisfies GLOBAL.')
+        
+        #RACE
+        libs = reqs = pd.read_csv(open_url(url),usecols=[6])
+        # libs
+        # h = libs.iloc[:, 0].tolist()
+        #print(h)
+        
+        for course in studset:
+            coursen = course.upper() + ' - RACE'
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies RACE')
+                break
+        else:
+            print('No course satisfies RACE.')
+        
+        
+                
+        
+        #LVPA
+        libs = reqs = pd.read_csv(open_url(url),usecols=[0])
+        libs
+        #h = libs.iloc[:, 0].tolist()
+        #print(h)
+        for course in studset:
+            coursen = course.upper() + ' - LVPA '
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies LVPA')
+                studset.remove(course)
+                break
+        else:
+            print('No course satisfies LVPA.')
+        
+            
+        #WVWK
+        libs = reqs = pd.read_csv(open_url(url),usecols=[1])
+        libs
+        #h = libs.iloc[:, 0].tolist()
+        #print(h)
+        for course in studset:
+            coursen = course.upper() + ' - WVWK '
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies WVWK')
+                studset.remove(course)
+                break
+        else:
+            print('No course satisfies WVWK.')
+        
+                
+        #BSCP
+        libs = reqs = pd.read_csv(open_url(url),usecols=[2])
+        libs
+        #h = libs.iloc[:, 0].tolist()
+        #print(h)
+        for course in studset:
+            coursen = course.upper() + ' - BSCP '
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies BSCP')
+                studset.remove(course)
+                break
+        else:
+            print('No course satisfies BSCP.')
+        
+                
+        #SCHP
+        libs = reqs = pd.read_csv(open_url(url),usecols=[3])
+        libs
+        #h = libs.iloc[:, 0].tolist()
+        #print(h)
+        for course in studset:
+            coursen = course.upper() + ' - SCHP '
+            if coursen in libs.iloc[:, 0].tolist():
+                print(course.upper(),'Satisfies SCHP')
+                studset.remove(course)
+                break
+        else:
+            print('No course satisfies SCHP.')
+        
+        
+        
+                
+        #World Languages
+        Spanish = ['spa 101','spa 102','spa 103']
+        French = ['fre 101','fre 102','fre 103']
+        
+        for x in studset:
+            if(x =='spa 103'):
+                print('Langauge: Complete')
+                break
+            elif(x =='spa 102'):
+                print('Langauge: 1 more course needed')
+                break
+            elif(x =='spa 101'):
+                print('Langauge: 2 more course needed')
+                break
+            elif(x =='fre 103'):
+                print('Langauge: Complete')
+                break
+            elif(x =='fre 102'):
+                print('Langauge: 1 more course needed')
+                break
+            elif(x =='fre 101'):
+                print('Langauge: 2 more course needed')
+                break
+
+
+
+
+    </py-script>
+
+
+  </body>
+</html>
